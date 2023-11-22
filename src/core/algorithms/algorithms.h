@@ -30,3 +30,6 @@
 
 /* Algebraic constraints*/
 #include "algorithms/algebraic_constraints/ac_algorithm.h"
+
+/* Inclusion dependency mining algorithms */
+#include "algorithms/ind/spider/spider.h"

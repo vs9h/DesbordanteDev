@@ -72,4 +72,5 @@ constexpr auto kDWeight =
 constexpr auto kDBumpsLimit = "max considered intervals amount. Pass 0 to remove limit";
 constexpr auto kDIterationsLimit = "limit for iterations of sampling";
 constexpr auto kDACSeed = "seed, needed for choosing a data sample";
+constexpr auto kDMemLimitMB = "memory limit im MBs (Spider-specific option)";
 }  // namespace config::descriptions

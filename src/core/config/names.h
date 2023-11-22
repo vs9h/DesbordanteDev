@@ -43,4 +43,5 @@ constexpr auto kCfdColumnsNumber = "columns_number";
 constexpr auto kCfdTuplesNumber = "tuples_number";
 constexpr auto kCfdMaximumLhs = "cfd_max_lhs";
 constexpr auto kCfdSubstrategy = "cfd_substrategy";
+constexpr auto kMemLimitMB = "mem_limit";
 }  // namespace config::names

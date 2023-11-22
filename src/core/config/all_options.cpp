@@ -137,6 +137,11 @@ boost::program_options::options_description AlgoOptions() {
             (names::kIterationsLimit, po::value<size_t>()->default_value(10), desc::kDIterationsLimit)
             (names::kACSeed, po::value<double>()->default_value(0.0), desc::kDACSeed)
             ;
+
+    po::options_description ind_options("IND options");
+    ind_options.add_options()
+            (names::kMemLimitMB, po::value<unsigned>(), desc::kDMemLimitMB)
+            ;
     // clang-format on
 
     po::options_description algorithm_options("Algorithm options");
@@ -146,7 +151,8 @@ boost::program_options::options_description AlgoOptions() {
             .add(ac_options)
             .add(typo_options)
             .add(fd_verification_options)
-            .add(cfd_search_options);
+            .add(cfd_search_options)
+            .add(ind_options);
     return algorithm_options;
 }
 }  // namespace config
