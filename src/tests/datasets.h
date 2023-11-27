@@ -13,6 +13,12 @@ struct Dataset {
     bool has_header;
 };
 
+struct DatasetInfo {
+    std::string name;
+    char separator;
+    bool has_header;
+};
+
 class LightDatasets {
 public:
     static inline const std::array<Dataset, 11> datasets_ = {
