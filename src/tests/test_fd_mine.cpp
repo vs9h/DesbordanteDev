@@ -14,6 +14,7 @@
 #include "config/names.h"
 #include "datasets.h"
 #include "model/table/relational_schema.h"
+#include "test_fd_util.h"
 
 using ::testing::ContainerEq, ::testing::Eq;
 
@@ -42,7 +43,7 @@ std::unique_ptr<FDAlgorithm> CreateFD_MineAlgorithmInstance(std::string const& p
     return algos::CreateAndLoadAlgorithm<Fd_mine>(FD_MineGetParamMap(path, separator, has_header));
 }
 
-class AlgorithmTest : public LightDatasets, public HeavyDatasets, public ::testing::Test {};
+using FDMineAlgorithmTest = AlgorithmTest<Fd_mine>;
 
 std::vector<unsigned int> FD_MineBitsetToIndexVector(boost::dynamic_bitset<> const& bitset) {
     std::vector<unsigned int> res;
@@ -148,13 +149,13 @@ void MinimizeFDs(std::list<FD>& fd_collection) {
     }
 }
 
-TEST_F(AlgorithmTest, FD_Mine_ReturnsSameAsPyro) {
+TEST_F(FDMineAlgorithmTest, FD_Mine_ReturnsSameAsPyro) {
     namespace onam = config::names;
 
     try {
-        for (Dataset const& dataset : LightDatasets::datasets_) {
+        for (auto const& [dataset, hash] : FDMineAlgorithmTest::light_datasets_) {
             // TODO: change this hotfix
-            if (dataset.name == "breast_cancer.csv") {
+            if (dataset.name == tests::kbreast_cancer.name) {
                 continue;
             }
             auto path = test_data_dir / dataset.name;
