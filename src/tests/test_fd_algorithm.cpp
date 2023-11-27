@@ -16,7 +16,7 @@
 #include "algorithms/fd/tane/tane.h"
 #include "datasets.h"
 #include "model/table/relational_schema.h"
-#include "testing_utils.h"
+#include "test_fd_util.h"
 
 using std::string, std::vector;
 using ::testing::ContainerEq, ::testing::Eq;
@@ -103,14 +103,14 @@ TYPED_TEST_P(AlgorithmTest, WorksOnWideDataset) {
     ASSERT_TRUE(CheckFdListEquality(true_fd_collection, algorithm->FdList()));
 }
 
-TYPED_TEST_P(AlgorithmTest, LightDatasetsConsistentHash) {
+template <typename T>
+void PerformConsistentHashTestOn(std::vector<tests::DatasetHashPair> const& datasets) {
     try {
-        for (auto const& dataset : LightDatasets::datasets_) {
-            auto algorithm = TestFixture::CreateAlgorithmInstance(dataset.name, dataset.separator,
-                                                                  dataset.has_header);
+        for (auto const& [dataset, hash] : datasets) {
+            auto algorithm =
+                    T::CreateAlgorithmInstance(dataset.name, dataset.separator, dataset.has_header);
             algorithm->Execute();
-            std::cout << dataset.name << std::endl;
-            EXPECT_EQ(algorithm->Fletcher16(), dataset.hash)
+            EXPECT_EQ(algorithm->Fletcher16(), hash)
                     << "FD collection hash changed for " << dataset.name;
         }
     } catch (std::runtime_error& e) {
@@ -120,20 +120,12 @@ TYPED_TEST_P(AlgorithmTest, LightDatasetsConsistentHash) {
     SUCCEED();
 }
 
+TYPED_TEST_P(AlgorithmTest, LightDatasetsConsistentHash) {
+    PerformConsistentHashTestOn<TestFixture>(TestFixture::light_datasets_);
+}
+
 TYPED_TEST_P(AlgorithmTest, HeavyDatasetsConsistentHash) {
-    try {
-        for (auto const& dataset : HeavyDatasets::datasets_) {
-            auto algorithm = TestFixture::CreateAlgorithmInstance(dataset.name, dataset.separator,
-                                                                  dataset.has_header);
-            algorithm->Execute();
-            EXPECT_EQ(algorithm->Fletcher16(), dataset.hash)
-                    << "The new algorithm and Pyro yield different results at " << dataset.name;
-        }
-    } catch (std::runtime_error& e) {
-        std::cout << "Exception raised in test: " << e.what() << std::endl;
-        FAIL();
-    }
-    SUCCEED();
+    PerformConsistentHashTestOn<TestFixture>(TestFixture::heavy_datasets_);
 }
 
 TYPED_TEST_P(AlgorithmTest, ConsistentRepeatedExecution) {

@@ -10,6 +10,7 @@
 #include "algorithms/ucc/hyucc/hyucc.h"
 #include "algorithms/ucc/ucc.h"
 #include "algorithms/ucc/ucc_algorithm.h"
+#include "all_datasets_info.h"
 #include "config/thread_number/type.h"
 #include "datasets.h"
 
@@ -53,42 +54,42 @@ public:
                 GetParamMap(test_data_dir / filename, separator, has_header));
     }
 
-    static inline const std::vector<Dataset> light_datasets_ = {
-        {"WDC_astronomical.csv", 2089541732445U, ',', true},
-        {"WDC_symbols.csv", 1, ',', true},
-        {"WDC_science.csv", 2658842082150U, ',', true},
-        {"WDC_satellites.csv", 5208443370856032U, ',', true},
-        {"WDC_appearances.csv", 82369238361U, ',', true},
-        {"WDC_astrology.csv", 79554241843163108U, ',', true},
-        {"WDC_game.csv", 2555214540772530U, ',', true},
-        {"WDC_kepler.csv", 82426217315737U, ',', true},
-        {"WDC_planetz.csv", 2555214540772530U, ',', true},
-        {"WDC_age.csv", 2658842082150U, ',', true},
-        {"TestWide.csv", 2555250373874U, ',', true},
-        {"abalone.csv", 16581571148699134255U, ',', true},
-        {"iris.csv", 1, ',', false},
-        {"adult.csv", 1, ';', false},
-        {"breast_cancer.csv", 16854900230774656828U, ',', true},
+    static inline const std::vector<DatasetHashPair> light_datasets_ = {
+        {kWDC_astronomical, 2089541732445U},
+        {kWDC_symbols, 1},
+        {kWDC_science, 2658842082150U},
+        {kWDC_satellites, 5208443370856032U},
+        {kWDC_appearances, 82369238361U},
+        {kWDC_astrology, 79554241843163108U},
+        {kWDC_game, 2555214540772530U},
+        {kWDC_kepler, 82426217315737U},
+        {kWDC_planetz, 2555214540772530U},
+        {kWDC_age, 2658842082150U},
+        {kTestWide, 2555250373874U},
+        {kabalone, 16581571148699134255U},
+        {kiris, 1},
+        {kadult, 1},
+        {kbreast_cancer, 16854900230774656828U},
         // Possibly heavy datasets, if another less efficient algorithm than HyUCC is not
         // able to process these move them to heavy_datasets_
-        {"neighbors10k.csv", 170971924188219U, ',', true},
+        {kneighbors10k, 170971924188219U},
 #if 0
-        {"neighbors50k.csv", 1, ',', true},
+        {kneighbors50k, 1},
 #endif
-        {"neighbors100k.csv", 170971924188219U, ',', true},
-        {"CIPublicHighway10k.csv", 82369238361U, ',', true},
-        {"CIPublicHighway700.csv", 82369238361U, ',', true},
+        {kneighbors100k, 170971924188219U},
+        {kCIPublicHighway10k, 82369238361U},
+        {kCIPublicHighway700, 82369238361U},
     };
 
-    static inline const std::vector<Dataset> heavy_datasets_ = {
-        {"EpicVitals.csv", 1, '|', true},
-        {"EpicMeds.csv", 59037771758954037U, '|', true},
-        {"iowa1kk.csv", 2654435863U, ',', true},
+    static inline const std::vector<DatasetHashPair> heavy_datasets_ = {
+        {kEpicVitals, 1},
+        {kEpicMeds, 59037771758954037U},
+        {kiowa1kk, 2654435863U},
 #if 0
-        {"fd-reduced-30.csv", 275990379954778425U, ',', true},
-        {"flight_1k.csv", 2512091017708538662U, ';', true},
-        {"plista_1k.csv", 1, ';', false},
-        {"letter.csv", 1, ',', false},
+        {kfd_reduced_30, 275990379954778425U},
+        {kflight_1k, 2512091017708538662U},
+        {kplista_1k, 1},
+        {kletter, 1},
 #endif
     };
 };
@@ -120,8 +121,8 @@ std::size_t Hash(std::vector<std::vector<unsigned>> const& vec) {
 }
 
 template <typename T>
-void PerformConsistentHashTestOn(std::vector<Dataset> const& datasets) {
-    for (Dataset const& dataset : datasets) {
+void PerformConsistentHashTestOn(std::vector<DatasetHashPair> const& datasets) {
+    for (auto const& [dataset, hash] : datasets) {
         try {
             auto ucc_algo =
                     T::CreateAlgorithmInstance(dataset.name, dataset.separator, dataset.has_header);
@@ -133,7 +134,7 @@ void PerformConsistentHashTestOn(std::vector<Dataset> const& datasets) {
             std::transform(actual_list.begin(), actual_list.end(), std::back_inserter(actual),
                            [](Vertical const& v) { return v.GetColumnIndicesAsVector(); });
             std::sort(actual.begin(), actual.end());
-            EXPECT_EQ(Hash(actual), dataset.hash) << "Wrong hash on dataset " << dataset.name;
+            EXPECT_EQ(Hash(actual), hash) << "Wrong hash on dataset " << dataset.name;
         } catch (std::exception const& e) {
             std::cout << "An exception with message: " << e.what() << "\n\tis thrown on dataset "
                       << dataset.name << '\n';
