@@ -30,7 +30,7 @@ public:
      * ignored by implicit casters.
      */
     static handle cast(algos::Statistic const& stat, return_value_policy /* policy */,
-                       handle /* parent */) {
+                       handle /* parent  */) {
         using model::Type, model::TypeId, model::Double, model::Int, model::String;
         std::byte const* data = stat.GetData();
         Type const* type = stat.GetType();
